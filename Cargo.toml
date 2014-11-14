@@ -1,0 +1,9 @@
+[package]
+
+name = "kpzl"
+version = "0.0.1"
+authors = ["Artur Gavkaliuk <mandeburka@gmail.com>"]
+
+[dependencies.ncurses]
+
+git = "https://github.com/jeaye/ncurses-rs.git"
