@@ -28,7 +28,8 @@ impl CLike for Move {
 
 struct Desk15 {
     desk: Vec<Vec<uint>>,
-    empty_pos: (uint, uint)
+    empty_pos: (uint, uint),
+    num_of_moves: uint
 }
 
 impl Desk15 {
@@ -39,6 +40,7 @@ impl Desk15 {
         let mut numbers = range(1u, 16).collect::<Vec<uint>>();
         
         rng.shuffle(numbers.as_mut_slice());
+
         
         let mut i = 0;
         for n in numbers.iter() {
@@ -46,7 +48,7 @@ impl Desk15 {
             i += 1;
         }
         
-        Desk15{desk: vec, empty_pos: (3, 3)}
+        Desk15 {desk: vec, empty_pos: (3, 3), num_of_moves: 0 }
     }
     
     fn drow(&self, window: ncurses::WINDOW) {
@@ -90,6 +92,7 @@ impl Desk15 {
             let (new_row, new_col) = self.empty_pos;
             self.desk[row][col] = self.desk[new_row][new_col];
             self.desk[new_row][new_col] = 0;
+            self.num_of_moves += 1;
             true
         } else {
             false
@@ -120,6 +123,23 @@ impl Desk15 {
         
         moves
     }
+
+    fn is_finished(&self) -> bool {
+        if self.empty_pos != (3, 3) {
+            false
+        } else {
+            let mut prev = 0u;
+            for row in self.desk.iter().rev() {
+                for n in row.iter().rev() {
+                    if prev != 0 && prev != *n + 1 {
+                        return false;
+                    }
+                    prev = *n;
+                }
+            }
+            true
+        }
+    }
 }
 
 pub fn play() {
@@ -128,17 +148,16 @@ pub fn play() {
 
     let mut game_desk = Desk15::new();
     let game_window = ncurses::newwin(SIZE as i32, (WIDTH * SIZE) as i32, 2, WIDTH as i32);
-
+    let stats_window= ncurses::newwin(3, 20, 2, (WIDTH * SIZE) as i32 + 8);
     let rows = ncurses::getmaxy(ncurses::stdscr);
-    // let cols = ncurses::getmaxx(ncurses::stdscr);
-
     
     ncurses::attron(ncurses::A_REVERSE());
-    ncurses::mvprintw(rows - 3, 1, "'Q' to exit");
+    ncurses::mvprintw(rows - 2, 1, "'Q' to exit");
     ncurses::attroff(ncurses::A_REVERSE());
     ncurses::refresh();
 
     game_desk.drow(game_window);
+    update_stats(stats_window, &game_desk);
 
     /* Wait for a key press. */
     loop {
@@ -148,16 +167,22 @@ pub fn play() {
             break;
         }
 
-        let mut m: Move = None;
-        match ch {
-            ncurses::KEY_UP     => { ncurses::mvprintw(rows - 2, 1, "UP       "); m = UP; },
-            ncurses::KEY_DOWN   => { ncurses::mvprintw(rows - 2, 1, "DOWN     "); m = DOWN; },
-            ncurses::KEY_LEFT   => { ncurses::mvprintw(rows - 2, 1, "LEFT     "); m = LEFT; },
-            ncurses::KEY_RIGHT  => { ncurses::mvprintw(rows - 2, 1, "RIGHT    "); m = RIGHT },
-            _                   => { ncurses::mvprintw(rows - 2, 1, "Not arrow"); }
+        let m: Move = match ch {
+            ncurses::KEY_UP     => { UP },
+            ncurses::KEY_DOWN   => { DOWN },
+            ncurses::KEY_LEFT   => { LEFT },
+            ncurses::KEY_RIGHT  => { RIGHT },
+            _                   => { None }
+        };
+        if game_desk.apply_move(m) {
+            game_desk.drow(game_window);
+            update_stats(stats_window, &game_desk);
         }
-        ncurses::mvprintw(rows - 1, 1, format!("Applied: {}  ", game_desk.apply_move(m)).as_slice());
-        game_desk.drow(game_window);
+
+        if game_desk.is_finished() {
+            ncurses::getch();
+            break;
+        }
     }
 
     /* Terminate ncurses. */
@@ -186,4 +211,15 @@ fn format_middle(val: String, width: uint) -> String {
         res.push(val.to_string());
     }
     res.concat()
+}
+
+fn update_stats(window: ncurses::WINDOW, desk: &Desk15) {
+    ncurses::mvwprintw(window, 0, 0, format!("Move: {}", desk.num_of_moves).as_slice());
+    // ncurses::mvwprintw(window, 1, 0, format!("Best: {}", 0u).as_slice());
+    if desk.is_finished() {
+        ncurses::mvwprintw(window, 2, 0, "You won!!!!!");
+    } else {
+        ncurses::mvwprintw(window, 2, 0, "            ");
+    }
+    ncurses::wrefresh(window);
 }
