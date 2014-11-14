@@ -215,6 +215,7 @@ fn format_middle(val: String, width: uint) -> String {
 
 fn update_stats(window: ncurses::WINDOW, desk: &Desk15) {
     ncurses::mvwprintw(window, 0, 0, format!("Move: {}", desk.num_of_moves).as_slice());
+    // TODO: implement best
     // ncurses::mvwprintw(window, 1, 0, format!("Best: {}", 0u).as_slice());
     if desk.is_finished() {
         ncurses::mvwprintw(window, 2, 0, "You won!!!!!");
