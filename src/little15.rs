@@ -12,6 +12,7 @@ static COLOR_PAIR_GREEN: i16 = 1;
 static COLOR_PAIR_YELLOW: i16 = 2;
 static COLOR_PAIR_WHITE: i16 = 3;
 static COLOR_PAIR_CYAN: i16 = 4;
+static COLOR_PAIR_MAGENTA: i16 = 5;
 
 #[repr(uint)]
 enum Move {
@@ -46,7 +47,6 @@ impl Desk15 {
         let mut numbers = range(1u, 16).collect::<Vec<uint>>();
         
         rng.shuffle(numbers.as_mut_slice());
-
         
         let mut i = 0;
         for n in numbers.iter() {
@@ -211,6 +211,7 @@ fn init_ncurses() {
     ncurses::init_pair(COLOR_PAIR_YELLOW, ncurses::COLOR_YELLOW, ncurses::COLOR_BLACK);
     ncurses::init_pair(COLOR_PAIR_WHITE, ncurses::COLOR_WHITE, ncurses::COLOR_BLACK);
     ncurses::init_pair(COLOR_PAIR_CYAN, ncurses::COLOR_CYAN, ncurses::COLOR_BLACK);
+    ncurses::init_pair(COLOR_PAIR_MAGENTA, ncurses::COLOR_MAGENTA, ncurses::COLOR_BLACK);
 }
 
 fn format_middle(val: String, width: uint) -> String {
@@ -235,7 +236,9 @@ fn update_stats(window: ncurses::WINDOW, desk: &Desk15) {
     // TODO: implement best
     // ncurses::mvwprintw(window, 1, 0, format!("Best: {}", 0u).as_slice());
     if desk.is_finished() {
-        ncurses::mvwprintw(window, 2, 0, "You won!!!!!");
+        ncurses::wattron(window, ncurses::COLOR_PAIR(COLOR_PAIR_MAGENTA));
+        ncurses::mvwprintw(window, 2, 0, "You won!");
+        ncurses::wattroff(window, ncurses::COLOR_PAIR(COLOR_PAIR_MAGENTA));
     } else {
         ncurses::mvwprintw(window, 2, 0, "            ");
     }
