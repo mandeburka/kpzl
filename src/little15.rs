@@ -11,6 +11,7 @@ const SIZE: uint = 4;
 static COLOR_PAIR_GREEN: i16 = 1;
 static COLOR_PAIR_YELLOW: i16 = 2;
 static COLOR_PAIR_WHITE: i16 = 3;
+static COLOR_PAIR_CYAN: i16 = 4;
 
 #[repr(uint)]
 enum Move {
@@ -62,14 +63,14 @@ impl Desk15 {
             let mut j = 0;
             for el in row.iter() {
                 let mut val = ".".to_string();
-                let mut color_pair = COLOR_PAIR_YELLOW;
+                let mut attrs = ncurses::COLOR_PAIR(COLOR_PAIR_YELLOW);
                 match el {
                     &0 => {},
-                    _ => { color_pair = COLOR_PAIR_WHITE; val = el.to_string() }
+                    _ => { attrs = ncurses::COLOR_PAIR(COLOR_PAIR_CYAN); val = el.to_string() }
                 }
-                ncurses::wattron(window, ncurses::COLOR_PAIR(color_pair));
+                ncurses::wattron(window, attrs);
                 ncurses::mvwprintw(window, i, j, format_middle(val, WIDTH as uint).as_slice());
-                ncurses::wattroff(window, ncurses::COLOR_PAIR(color_pair));
+                ncurses::wattroff(window, attrs);
                 j += WIDTH as i32;
             }
             i += 1;
@@ -209,6 +210,7 @@ fn init_ncurses() {
     ncurses::init_pair(COLOR_PAIR_GREEN, ncurses::COLOR_GREEN, ncurses::COLOR_BLACK);
     ncurses::init_pair(COLOR_PAIR_YELLOW, ncurses::COLOR_YELLOW, ncurses::COLOR_BLACK);
     ncurses::init_pair(COLOR_PAIR_WHITE, ncurses::COLOR_WHITE, ncurses::COLOR_BLACK);
+    ncurses::init_pair(COLOR_PAIR_CYAN, ncurses::COLOR_CYAN, ncurses::COLOR_BLACK);
 }
 
 fn format_middle(val: String, width: uint) -> String {
