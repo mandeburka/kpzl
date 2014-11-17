@@ -46,7 +46,12 @@ impl Desk15 {
         let mut vec = Vec::from_fn(4, |_| Vec::from_elem(SIZE, 0u));
         let mut numbers = range(1u, 16).collect::<Vec<uint>>();
         
-        rng.shuffle(numbers.as_mut_slice());
+        loop {
+            rng.shuffle(numbers.as_mut_slice());
+            if Desk15::_is_solvable(numbers.as_slice(), 3) {
+                break;
+            }
+        }
         
         let mut i = 0;
         for n in numbers.iter() {
@@ -55,6 +60,14 @@ impl Desk15 {
         }
         
         Desk15 {desk: vec, empty_pos: (3, 3), num_of_moves: 0 }
+    }
+
+    fn _is_solvable(data: &[uint], zero_row: uint) -> bool {
+        let mut sum = 0u;
+        for n in range(1u, 16) {
+            sum += data.iter().skip_while(|&x| *x != n).filter(|&x| *x > n).count();
+        }
+        (sum + zero_row) % 2 == 0
     }
     
     fn drow(&self, window: ncurses::WINDOW) {
