@@ -1,3 +1,4 @@
+extern crate ncurses;
 use std::collections::enum_set::CLike;
 use std::mem;
 
@@ -25,9 +26,11 @@ pub trait Game {
 	fn is_finished(&self) -> bool;
 	fn apply_move(&mut self, m: Move) -> bool;
 	fn score(&self) -> uint;
-	fn desk(&self) -> &[Vec<uint>];
+	fn drow(&self, window: ncurses::WINDOW);
+	fn window_size(&self) -> (uint, uint);
 }
 
 
+pub mod utils;
 pub mod little15;
 pub mod ui;

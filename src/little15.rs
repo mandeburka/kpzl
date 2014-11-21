@@ -1,16 +1,19 @@
+extern crate ncurses;
 use std::rand::{task_rng, Rng};
 use std::collections::enum_set::{EnumSet};
 use super::{Move, Game};
+use utils::{Color, format_middle};
 
+const WIDTH: uint = 4;
 const SIZE: uint = 4;
 
-pub struct Desk15 {
+pub struct Little15 {
     pub desk: Vec<Vec<uint>>,
     empty_pos: (uint, uint),
     num_of_moves: uint
 }
 
-impl Desk15 {
+impl Little15 {
 
     fn _is_solvable(data: &[uint], zero_row: uint) -> bool {
         let mut sum = 0u;
@@ -45,15 +48,15 @@ impl Desk15 {
     }
 }
 
-impl Game for Desk15 {
-    fn new() -> Desk15 {
+impl Game for Little15 {
+    fn new() -> Little15 {
         let mut rng = task_rng();
         let mut vec = Vec::from_fn(4, |_| Vec::from_elem(SIZE, 0u));
         let mut numbers = range(1u, 16).collect::<Vec<uint>>();
         
         loop {
             rng.shuffle(numbers.as_mut_slice());
-            if Desk15::_is_solvable(numbers.as_slice(), 3) {
+            if Little15::_is_solvable(numbers.as_slice(), 3) {
                 break;
             }
         }
@@ -64,7 +67,7 @@ impl Game for Desk15 {
             i += 1;
         }
         
-        Desk15 {desk: vec, empty_pos: (3, 3), num_of_moves: 0 }
+        Little15 {desk: vec, empty_pos: (3, 3), num_of_moves: 0 }
     }
 
     fn is_finished(&self) -> bool {
@@ -119,7 +122,29 @@ impl Game for Desk15 {
         self.num_of_moves
     }
 
-    fn desk(&self) -> &[Vec<uint>] {
-        self.desk.as_slice()
+    fn drow(&self, window: ncurses::WINDOW) {
+        let mut i = 0;
+        for row in self.desk.iter() {
+            let mut j = 0;
+            for el in row.iter() {
+                let mut val = ".".to_string();
+                let mut attrs = ncurses::COLOR_PAIR(Color::YELLOW as i16);
+                match el {
+                    &0 => {},
+                    _ => { attrs = ncurses::COLOR_PAIR(Color::CYAN as i16); val = el.to_string() }
+                }
+                ncurses::wattron(window, attrs);
+                ncurses::mvwprintw(window, i, j, format_middle(val, WIDTH as uint).as_slice());
+                ncurses::wattroff(window, attrs);
+                j += WIDTH as i32;
+            }
+            i += 1;
+        }
+        ncurses::wrefresh(window);
     }
+
+    fn window_size(&self) -> (uint, uint) {
+        (4, 16)
+    }
+
 }
