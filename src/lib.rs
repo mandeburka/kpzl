@@ -34,3 +34,4 @@ pub trait Game {
 pub mod utils;
 pub mod little15;
 pub mod ui;
+pub mod super2048;

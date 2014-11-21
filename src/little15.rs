@@ -2,13 +2,12 @@ extern crate ncurses;
 use std::rand::{task_rng, Rng};
 use std::collections::enum_set::{EnumSet};
 use super::{Move, Game};
-use utils::{Color, format_middle};
+use utils::Color;
 
-const WIDTH: uint = 4;
 const SIZE: uint = 4;
 
 pub struct Little15 {
-    pub desk: Vec<Vec<uint>>,
+    desk: Vec<Vec<uint>>,
     empty_pos: (uint, uint),
     num_of_moves: uint
 }
@@ -127,16 +126,20 @@ impl Game for Little15 {
         for row in self.desk.iter() {
             let mut j = 0;
             for el in row.iter() {
-                let mut val = ".".to_string();
-                let mut attrs = ncurses::COLOR_PAIR(Color::YELLOW as i16);
-                match el {
-                    &0 => {},
-                    _ => { attrs = ncurses::COLOR_PAIR(Color::CYAN as i16); val = el.to_string() }
-                }
+                let (val, attrs) = match el {
+                    &0 => {
+                        (".".to_string(), ncurses::COLOR_PAIR(Color::YELLOW as i16))
+                    },
+                    _ => {
+                        (el.to_string(), ncurses::COLOR_PAIR(Color::CYAN as i16))
+                    }
+                };
+                let cell = format!("{:>4}", val);
+                
                 ncurses::wattron(window, attrs);
-                ncurses::mvwprintw(window, i, j, format_middle(val, WIDTH as uint).as_slice());
+                ncurses::mvwprintw(window, i, j, cell.as_slice());
                 ncurses::wattroff(window, attrs);
-                j += WIDTH as i32;
+                j += cell.len() as i32;
             }
             i += 1;
         }
