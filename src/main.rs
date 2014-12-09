@@ -1,5 +1,5 @@
 extern crate kpzl;
 
 fn main() {
-    kpzl::ui::play::<kpzl::little15::Little15>();
+    kpzl::ui::play::<kpzl::super2048::Super2048>();
 }

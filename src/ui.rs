@@ -1,4 +1,5 @@
 extern crate ncurses;
+
 use std::char;
 use super::{Move, Game};
 use utils::Color;
@@ -58,7 +59,7 @@ fn init_ncurses() {
     ncurses::cbreak();
     ncurses::keypad(ncurses::stdscr, true);
     ncurses::noecho();
-    ncurses::curs_set(ncurses::CURSOR_INVISIBLE);
+    ncurses::curs_set(ncurses::CURSOR_VISIBILITY::CURSOR_INVISIBLE);
     ncurses::start_color();
 
     init_colors();
