@@ -1,6 +1,7 @@
 extern crate ncurses;
 
 use std::rand::{task_rng, Rng};
+use std::num::Float;
 use super::{Move, Game};
 use utils::Color;
 
@@ -29,11 +30,17 @@ impl Super2048 {
 		}
 		free
 	}
+
+	fn get_color(&self, n: uint) -> Color {
+		let colors = [Color::CYAN, Color::GREEN, Color::MAGENTA, Color::BLUE, Color::RED];
+		let power = (n as f32).log2() as uint;
+		colors[colors.len() % power]
+    }
 }
 
 impl Game for Super2048 {
 	fn new() -> Super2048 {
-        let mut vec = Vec::from_fn(4, |_| Vec::from_elem(4, 0u));
+        let vec = Vec::from_fn(4, |_| Vec::from_elem(4, 0u));
         let mut game = Super2048 {desk: vec, score: 0 };
         game.put_number();
         game.put_number();
@@ -41,7 +48,7 @@ impl Game for Super2048 {
     }
 
 	fn is_finished(&self) -> bool {
-		false
+		self.free_positions().len() == 0
 	}
 
 	fn window_size(&self) -> (uint, uint) {
@@ -53,7 +60,18 @@ impl Game for Super2048 {
 	}
 
 	fn apply_move(&mut self, m: Move) -> bool {
-		true
+		if self.is_finished() {
+			false
+		} else {
+			match m {
+				Move::RIGHT => {
+					
+				},
+				_ => {}
+			}
+			self.put_number();
+			true
+		}
 	}
 
 	fn drow(&self, window: ncurses::WINDOW) {
@@ -65,8 +83,8 @@ impl Game for Super2048 {
                     &0 => {
                         (".".to_string(), ncurses::COLOR_PAIR(Color::YELLOW as i16))
                     },
-                    _ => {
-                        (el.to_string(), ncurses::COLOR_PAIR(Color::CYAN as i16))
+                    &n => {
+                        (el.to_string(), ncurses::COLOR_PAIR(self.get_color(n) as i16))
                     }
                 };
                 let cell = format!("{:>4}", val);

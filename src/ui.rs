@@ -71,6 +71,8 @@ fn init_colors() {
     ncurses::init_pair(Color::WHITE as i16, ncurses::COLOR_WHITE, ncurses::COLOR_BLACK);
     ncurses::init_pair(Color::CYAN as i16, ncurses::COLOR_CYAN, ncurses::COLOR_BLACK);
     ncurses::init_pair(Color::MAGENTA  as i16, ncurses::COLOR_MAGENTA, ncurses::COLOR_BLACK);
+    ncurses::init_pair(Color::RED  as i16, ncurses::COLOR_RED, ncurses::COLOR_BLACK);
+    ncurses::init_pair(Color::BLUE  as i16, ncurses::COLOR_BLUE, ncurses::COLOR_BLACK);
 }
 
 fn update_stats(desk: &Game, window: ncurses::WINDOW) {

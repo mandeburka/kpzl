@@ -5,7 +5,9 @@ pub enum Color{
 	YELLOW = 2,
 	WHITE = 3,
 	CYAN = 4,
-	MAGENTA = 5
+	MAGENTA = 5,
+    BLUE = 6,
+    RED = 7
 }
 
 pub fn format_middle(val: String, width: uint) -> String {
