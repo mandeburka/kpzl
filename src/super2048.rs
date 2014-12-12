@@ -2,6 +2,7 @@ extern crate ncurses;
 
 use std::rand::{task_rng, Rng};
 use std::num::Float;
+use std::collections::DList;
 use super::{Move, Game};
 use utils::Color;
 
@@ -36,6 +37,50 @@ impl Super2048 {
 		let power = (n as f32).log2() as uint;
 		colors[colors.len() % power]
     }
+
+    fn collapse_left(numbers: &[uint]) -> Vec<uint> {
+    	let mut result = Vec::from_elem(numbers.len(), 0u);
+    	let mut list: DList<uint> = numbers.iter().filter(|&x| *x > 0).map(|&x| x).collect();
+    	loop {
+    		if list.len() == 0 {
+    			break;
+    		}
+    		let mut num = list.pop_front().expect("No elements in list");
+    		let neighbour = *list.front().unwrap_or(&0u);
+    		if num == neighbour {
+    			list.pop_front();
+    			num += neighbour;
+    		}
+    		result.push(num);
+    	}
+    	result
+    }
+
+    fn collapse_cols(&mut self, reversed: bool) {
+    	for row in range(0, 4) {
+	    	let mut cols: Vec<uint> = range(0u, 4).collect();
+	    	let mut numbers = Vec::new();
+	    	
+	    	if reversed {
+	    		cols.as_mut_slice().reverse();
+	    	}
+	    	
+	    	for col in cols.iter() {
+	    		numbers.push(self.desk[row][*col]);
+	    	}
+	    	
+	    	let mut collapsed = Super2048::collapse_left(numbers.as_slice());
+	    	
+	    	if reversed {
+	    		collapsed.as_mut_slice().reverse();
+	    	}
+	    	
+	    	for col in cols.iter() {
+	    		self.desk[row][*col] = collapsed.pop().unwrap_or(0);
+	    	}
+	    }
+
+    }
 }
 
 impl Game for Super2048 {
@@ -64,8 +109,11 @@ impl Game for Super2048 {
 			false
 		} else {
 			match m {
+				Move::LEFT => {
+					self.collapse_cols(false);
+				},
 				Move::RIGHT => {
-					
+					self.collapse_cols(true);
 				},
 				_ => {}
 			}
