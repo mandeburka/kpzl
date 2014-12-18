@@ -1,6 +1,9 @@
 extern crate ncurses;
 
-pub enum Color{
+use std::fmt;
+use std::fmt::Show;
+
+pub enum Color {
 	GREEN = 1,
 	YELLOW = 2,
 	WHITE = 3,
@@ -8,6 +11,36 @@ pub enum Color{
 	MAGENTA = 5,
     BLUE = 6,
     RED = 7
+}
+
+impl Color {
+    pub fn name(&self) -> String {
+        String::from_str(
+            match self {
+                &Color::GREEN   => "GREEN",
+                &Color::YELLOW  => "YELLOW",
+                &Color::WHITE   => "WHITE",
+                &Color::CYAN    => "CYAN",
+                &Color::MAGENTA => "MAGENTA",
+                &Color::BLUE    => "BLUE",
+                &Color::RED     => "RED",
+            }
+        )
+    }
+}
+
+impl Copy for Color {}
+
+impl Show for Color {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.name())
+    }
+}
+
+impl PartialEq for Color {
+    fn eq(&self, other: &Color) -> bool { self.name() == other.name() }
+
+    fn ne(&self, other: &Color) -> bool { !self.eq(other) }
 }
 
 pub fn format_middle(val: String, width: uint) -> String {

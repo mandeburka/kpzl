@@ -1,8 +1,6 @@
 extern crate ncurses;
 use std::collections::enum_set::CLike;
-use std::mem;
 
-#[repr(uint)]
 pub enum Move {
     LEFT,
     RIGHT,
@@ -13,13 +11,27 @@ pub enum Move {
 
 impl CLike for Move {
     fn to_uint(&self) -> uint {
-        *self as uint
+        match *self {
+            Move::LEFT => 1,
+            Move::RIGHT => 2,
+            Move::UP => 3,
+            Move::DOWN => 4,
+            _ => 0
+        }
     }
 
     fn from_uint(v: uint) -> Move {
-        unsafe { mem::transmute(v) }
+        match v {
+            1 => Move::LEFT,
+            2 => Move::RIGHT,
+            3 => Move::UP,
+            4 => Move::DOWN,
+            _ => Move::None,
+        }
     }
 }
+
+impl Copy for Move {}
 
 pub trait Game {
 	fn new() -> Self;
