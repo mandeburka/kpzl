@@ -39,9 +39,10 @@ impl Super2048 {
 		self.colors[position]
     }
 
-    fn collapse_left(numbers: &[uint]) -> Vec<uint> {
+    fn collapse_left(numbers: &[uint]) -> (Vec<uint>, uint) {
     	let mut result: Vec<uint> = Vec::new();
     	let mut list: DList<uint> = numbers.iter().filter(|&x| *x > 0).map(|&x| x).collect();
+    	let mut score = 0u;
     	loop {
     		if list.len() == 0 {
     			break;
@@ -51,10 +52,11 @@ impl Super2048 {
     		if num == neighbour {
     			list.pop_front();
     			num += neighbour;
+    			score += num;
     		}
     		result.push(num);
     	}
-    	result
+    	(result, score)
     }
 
     fn collapse_cols(&mut self, reversed: bool) -> bool {
@@ -70,7 +72,7 @@ impl Super2048 {
 	    		numbers.push(self.desk[row][*col]);
 	    	}
 	    	
-	    	let mut collapsed_row = Super2048::collapse_left(numbers.as_slice());
+	    	let (mut collapsed_row, score) = Super2048::collapse_left(numbers.as_slice());
 	    	
     		collapsed_row.as_mut_slice().reverse();
 	    	
@@ -81,6 +83,8 @@ impl Super2048 {
 	    		}
 	    		self.desk[row][*col] = new_value;
 	    	}
+
+	    	self.score += score;
 	    }
 	    collapsed
     }
@@ -98,7 +102,7 @@ impl Super2048 {
 	    		numbers.push(self.desk[*row][col]);
 	    	}
 	    	
-	    	let mut collapsed_row = Super2048::collapse_left(numbers.as_slice());
+	    	let (mut collapsed_row, score) = Super2048::collapse_left(numbers.as_slice());
 	    	
     		collapsed_row.as_mut_slice().reverse();
 	    	
@@ -109,8 +113,18 @@ impl Super2048 {
 	    		}
 	    		self.desk[*row][col] = new_value;
 	    	}
+
+	    	self.score += score;
 	    }
 	    collapsed
+    }
+
+    fn fmt_number(n: uint) -> String {
+    	if n < 1024 {
+    		n.to_string()
+    	} else {
+    		"1K".to_string()
+    	}
     }
 }
 
@@ -175,7 +189,7 @@ impl Game for Super2048 {
                         (".".to_string(), ncurses::COLOR_PAIR(Color::YELLOW as i16))
                     },
                     &n => {
-                        (el.to_string(), ncurses::COLOR_PAIR(self.get_color(n) as i16))
+                        (Super2048::fmt_number(n), ncurses::COLOR_PAIR(self.get_color(n) as i16))
                     }
                 };
                 let cell = format!("{:>4}", val);
@@ -200,16 +214,16 @@ mod tests {
     #[test]
     fn test_collapse_left() {
         let res = Super2048::collapse_left(&[2, 2]);
-        assert_eq!(res, vec![4]);
+        assert_eq!(res, (vec![4], 4));
 
         let res = Super2048::collapse_left(&[2, 2, 4]);
-        assert_eq!(res, vec![4, 4]);
+        assert_eq!(res, (vec![4, 4], 4));
 
         let res = Super2048::collapse_left(&[2, 2, 4, 4, 16, 16]);
-        assert_eq!(res, vec![4, 8, 32]);
+        assert_eq!(res, (vec![4, 8, 32], 44));
 
         let res = Super2048::collapse_left(&[2, 0, 2, 16]);
-        assert_eq!(res, vec![4, 16]);
+        assert_eq!(res, (vec![4, 16], 4));
     }
 
     #[test]
