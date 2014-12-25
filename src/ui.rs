@@ -30,23 +30,18 @@ pub fn play<T: Game>() {
         let letter = char::from_u32(ch as u32).expect("Not a char");
         if letter == 'q' || letter == 'Q' {
             break;
-        }
-
-        let m: Move = match ch {
-            ncurses::KEY_UP     => { Move::UP },
-            ncurses::KEY_DOWN   => { Move::DOWN },
-            ncurses::KEY_LEFT   => { Move::LEFT },
-            ncurses::KEY_RIGHT  => { Move::RIGHT },
-            _                   => { Move::None }
-        };
-        if game.apply_move(m) {
-            game.drow(game_window);
-            update_stats(&game, stats_window);
-        }
-
-        if game.is_finished() {
-            ncurses::getch();
-            break;
+        } else if !game.is_finished() {
+            let m: Move = match ch {
+                ncurses::KEY_UP     => { Move::UP },
+                ncurses::KEY_DOWN   => { Move::DOWN },
+                ncurses::KEY_LEFT   => { Move::LEFT },
+                ncurses::KEY_RIGHT  => { Move::RIGHT },
+                _                   => { Move::None }
+            };
+            if game.apply_move(m) {
+                game.drow(game_window);
+                update_stats(&game, stats_window);
+            }
         }
     }
 

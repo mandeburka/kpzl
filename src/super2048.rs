@@ -126,6 +126,23 @@ impl Super2048 {
     		"1K".to_string()
     	}
     }
+
+    fn has_moves(&self) -> bool {
+    	if self.free_positions().len() > 0 {
+    		true
+    	} else {
+	    	for row in range(0, 4) {
+	    		for col in range(0, 4) {
+	    			if  (row < 3 && self.desk[row][col] == self.desk[row + 1][col]) ||
+	    				(col < 3 && self.desk[row][col] == self.desk[row][col + 1])
+	    			{
+	    				return true;
+	    			}
+	    		}
+	    	}
+	    	false
+	    }
+    }
 }
 
 impl Game for Super2048 {
@@ -142,7 +159,7 @@ impl Game for Super2048 {
     }
 
 	fn is_finished(&self) -> bool {
-		self.free_positions().len() == 0
+		!self.has_moves()
 	}
 
 	fn window_size(&self) -> (uint, uint) {
@@ -316,6 +333,18 @@ mod tests {
     	for (number, color) in number_colors.iter() {
     		assert_eq!(game.get_color(*number), *color);
     	}
+    }
+
+    #[test]
+    fn has_moves() {
+    	let mut game = new_blank_game();
+    
+    	game.desk[0] = vec![  8,  4,   2, 512];
+    	game.desk[1] = vec![ 32, 64, 256,  16];
+    	game.desk[2] = vec![  4, 16,   8,   4];
+    	game.desk[3] = vec![  8,  4,   4,   2];
+
+    	assert!(game.has_moves());
     }
 
     fn new_blank_game() -> Super2048 {
