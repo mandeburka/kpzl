@@ -1,30 +1,31 @@
 extern crate ncurses;
 
-use std::rand::{task_rng, Rng};
+use std::rand::{thread_rng, Rng};
 use std::num::Float;
 use std::collections::DList;
+use std::iter::repeat;
 use super::{Move, Game};
 use utils::Color;
 
 pub struct Super2048 {
-	desk: Vec<Vec<uint>>,
-    score: uint,
+	desk: Vec<Vec<u32>>,
+    score: u32,
     colors: Vec<Color>
 }
 
 impl Super2048 {
 	fn put_number(&mut self) {
-		let choices = [2u, 4];
-		let mut rng = task_rng();
+		let choices = [2u32, 4];
+		let mut rng = thread_rng();
 		let &(row, col) = rng.choose(self.free_positions().as_slice()).expect("No free positions");
 		let &number = rng.choose(&choices).expect("No choices for default number");
 		self.desk[row][col] = number;
 	}
 
-	fn free_positions(&self) -> Vec<(uint, uint)> {
-		let mut free: Vec<(uint, uint)> = vec![];
-		for r in range(0u, 4) {
-			for c in range(0u, 4) {
+	fn free_positions(&self) -> Vec<(u32, u32)> {
+		let mut free: Vec<(u32, u32)> = vec![];
+		for r in range(0u32, 4) {
+			for c in range(0u32, 4) {
 				if self.desk[r][c] == 0 {
 					free.push((r, c))
 				}
@@ -33,22 +34,22 @@ impl Super2048 {
 		free
 	}
 
-	fn get_color(&self, n: uint) -> Color {
-		let power = (n as f32).log2() as uint - 1;
+	fn get_color(&self, n: u32) -> Color {
+		let power = (n as f32).log2() as u32 - 1;
 		let position = power % self.colors.len();
 		self.colors[position]
     }
 
-    fn collapse_left(numbers: &[uint]) -> (Vec<uint>, uint) {
-    	let mut result: Vec<uint> = Vec::new();
-    	let mut list: DList<uint> = numbers.iter().filter(|&x| *x > 0).map(|&x| x).collect();
-    	let mut score = 0u;
+    fn collapse_left(numbers: &[u32]) -> (Vec<u32>, u32) {
+    	let mut result: Vec<u32> = Vec::new();
+    	let mut list: DList<u32> = numbers.iter().filter(|&x| *x > 0).map(|&x| x).collect();
+    	let mut score = 0u32;
     	loop {
     		if list.len() == 0 {
     			break;
     		}
     		let mut num = list.pop_front().expect("No elements in list");
-    		let neighbour = *list.front().unwrap_or(&0u);
+    		let neighbour = *list.front().unwrap_or(&0u32);
     		if num == neighbour {
     			list.pop_front();
     			num += neighbour;
@@ -62,7 +63,7 @@ impl Super2048 {
     fn collapse_cols(&mut self, reversed: bool) -> bool {
     	let mut collapsed = false;
     	for row in range(0, 4) {
-	    	let mut cols: Vec<uint> = range(0u, 4).collect();
+	    	let mut cols: Vec<u32> = range(0u32, 4).collect();
 	    	let mut numbers = Vec::new();
 	    	
 	    	if reversed {
@@ -92,7 +93,7 @@ impl Super2048 {
     fn collapse_rows(&mut self, reversed: bool) -> bool {
     	let mut collapsed = false;
     	for col in range(0, 4) {
-	    	let mut rows: Vec<uint> = range(0u, 4).collect();
+	    	let mut rows: Vec<u32> = range(0u32, 4).collect();
 	    	let mut numbers = Vec::new();
 	    	
 	    	if reversed {
@@ -119,7 +120,7 @@ impl Super2048 {
 	    collapsed
     }
 
-    fn fmt_number(n: uint) -> String {
+    fn fmt_number(n: u32) -> String {
     	if n < 1024 {
     		n.to_string()
     	} else {
@@ -147,7 +148,7 @@ impl Super2048 {
 
 impl Game for Super2048 {
 	fn new() -> Super2048 {
-        let vec = Vec::from_fn(4, |_| Vec::from_elem(4, 0u));
+        let vec: Vec<Vec<u32>> = (0..4).map(|_| repeat(0u32).take(4).collect()).collect();
         let mut game = Super2048 {
         	desk: vec,
         	score: 0,
@@ -162,11 +163,11 @@ impl Game for Super2048 {
 		!self.has_moves()
 	}
 
-	fn window_size(&self) -> (uint, uint) {
+	fn window_size(&self) -> (u32, u32) {
 		(4, 16)
 	}
 
-	fn score(&self) -> uint {
+	fn score(&self) -> u32 {
 		self.score
 	}
 

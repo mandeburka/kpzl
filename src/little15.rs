@@ -1,23 +1,26 @@
 extern crate ncurses;
-use std::rand::{task_rng, Rng};
-use std::collections::enum_set::{EnumSet};
+extern crate collections;
+
+use std::rand::{thread_rng, Rng};
+use collections::enum_set::EnumSet;
+use std::iter::repeat;
 use super::{Move, Game};
 use utils::Color;
 
-const SIZE: uint = 4;
+const SIZE: usize = 4;
 
 pub struct Little15 {
-    desk: Vec<Vec<uint>>,
-    empty_pos: (uint, uint),
-    num_of_moves: uint
+    desk: Vec<Vec<u32>>,
+    empty_pos: (usize, usize),
+    num_of_moves: u32
 }
 
 impl Little15 {
 
-    fn _is_solvable(data: &[uint], zero_row: uint) -> bool {
-        let mut sum = 0u;
-        for n in range(1u, 16) {
-            sum += data.iter().skip_while(|&x| *x != n).filter(|&x| *x > n).count();
+    fn _is_solvable(data: &[u32], zero_row: u32) -> bool {
+        let mut sum = 0u32;
+        for n in range(1u32, 16) {
+            sum += data.iter().skip_while(|&x| *x != n).filter(|&x| *x > n).count() as u32;
         }
         (sum + zero_row) % 2 == 0
     }
@@ -49,9 +52,9 @@ impl Little15 {
 
 impl Game for Little15 {
     fn new() -> Little15 {
-        let mut rng = task_rng();
-        let mut vec = Vec::from_fn(4, |_| Vec::from_elem(SIZE, 0u));
-        let mut numbers = range(1u, 16).collect::<Vec<uint>>();
+        let mut rng = thread_rng();
+        let mut vec: Vec<Vec<u32>> = (0..4).map(|_| repeat(0u32).take(SIZE).collect()).collect();
+        let mut numbers = range(1u32, 16).collect::<Vec<u32>>();
         
         loop {
             rng.shuffle(numbers.as_mut_slice());
@@ -73,7 +76,7 @@ impl Game for Little15 {
         if self.empty_pos != (3, 3) {
             false
         } else {
-            let mut prev = 0u;
+            let mut prev = 0u32;
             for row in self.desk.iter().rev() {
                 for n in row.iter().rev() {
                     if prev != 0 && prev != *n + 1 {
@@ -117,7 +120,7 @@ impl Game for Little15 {
         
     }
 
-    fn score(&self) -> uint {
+    fn score(&self) -> u32 {
         self.num_of_moves
     }
 
@@ -146,7 +149,7 @@ impl Game for Little15 {
         ncurses::wrefresh(window);
     }
 
-    fn window_size(&self) -> (uint, uint) {
+    fn window_size(&self) -> (u32, u32) {
         (4, 16)
     }
 

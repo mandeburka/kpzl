@@ -1,6 +1,6 @@
 extern crate ncurses;
 
-use std::fmt;
+use std::{fmt, iter};
 use std::fmt::Show;
 
 pub enum Color {
@@ -43,15 +43,18 @@ impl PartialEq for Color {
     fn ne(&self, other: &Color) -> bool { !self.eq(other) }
 }
 
-pub fn format_middle(val: String, width: uint) -> String {
+pub fn format_middle(val: String, width: usize) -> String {
     let len = val.len();
     let mut res: Vec<String> = vec![];
     if len < width {
         let end = (width - len) / 2;
         let start = width - len - end;
-        res.push(String::from_char(start, ' '));
+        for _ in range(0, start) {
+
+        }
+        res.push(iter::repeat(' ').take(start).collect());
         res.push(val);
-        res.push(String::from_char(end, ' '));
+        res.push(iter::repeat(' ').take(end).collect());
     } else {
         res.push(val.to_string());
     }

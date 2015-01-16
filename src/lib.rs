@@ -1,5 +1,7 @@
 extern crate ncurses;
-use std::collections::enum_set::CLike;
+extern crate collections;
+
+use collections::enum_set::CLike;
 
 pub enum Move {
     LEFT,
@@ -10,7 +12,7 @@ pub enum Move {
 }
 
 impl CLike for Move {
-    fn to_uint(&self) -> uint {
+    fn to_uint(&self) -> usize {
         match *self {
             Move::LEFT => 1,
             Move::RIGHT => 2,
@@ -20,7 +22,7 @@ impl CLike for Move {
         }
     }
 
-    fn from_uint(v: uint) -> Move {
+    fn from_uint(v: usize) -> Move {
         match v {
             1 => Move::LEFT,
             2 => Move::RIGHT,
@@ -37,9 +39,9 @@ pub trait Game {
 	fn new() -> Self;
 	fn is_finished(&self) -> bool;
 	fn apply_move(&mut self, m: Move) -> bool;
-	fn score(&self) -> uint;
+	fn score(&self) -> u32;
 	fn drow(&self, window: ncurses::WINDOW);
-	fn window_size(&self) -> (uint, uint);
+	fn window_size(&self) -> (u32, u32);
 }
 
 
